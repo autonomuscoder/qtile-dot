@@ -6,7 +6,16 @@ import os
 import subprocess
 
 from libqtile import hook
+from qtile_extras import widget
+from qtile_extras.widget.decorations import PowerLineDecoration
 
+powerline = {
+    "decorations": [
+        PowerLineDecoration()
+    ]
+}
+
+# Autostart
 @hook.subscribe.startup_once
 def autostart():
     home = os.path.expanduser('~/.config/qtile/autostart.sh')
@@ -84,13 +93,13 @@ for i in groups:
     )
 
 layouts = [
-    layout.Columns(margin=5, border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=4),
+    layout.MonadTall(margin=5, border_width=0),
     layout.Max(),
+    # layout.Columns(margin=5, border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=0),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
     # layout.Bsp(),
     # layout.Matrix(),
-    # layout.MonadTall(),
     # layout.MonadWide(),
     # layout.RatioTile(),
     # layout.Tile(),
@@ -102,7 +111,7 @@ layouts = [
 widget_defaults = dict(
     font="JetBrainsMono Nerd Font",
     fontsize=12,
-    padding=3,
+    padding=0,
 )
 extension_defaults = widget_defaults.copy()
 
@@ -110,23 +119,17 @@ screens = [
     Screen(
         top=bar.Bar(
             [
-                widget.CurrentLayout(),
-                widget.GroupBox(),
-                widget.Prompt(),
-                widget.WindowName(),
-                widget.Chord(
-                    chords_colors={
-                        "launch": ("#ff0000", "#ffffff"),
-                    },
-                    name_transform=lambda name: name.upper(),
-                ),
-                # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
-                # widget.StatusNotifier(),
-                widget.Systray(),
-                widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
-                widget.QuickExit(),
+                widget.CurrentLayoutIcon(background="000000", **powerline),
+                widget.AGroupBox(**powerline),
+                widget.WindowName(background="222222", **powerline),
+                widget.Systray( **powerline),
+                widget.ThermalSensor(background='222222', 
+                                     metric='true',
+                                     **powerline),
+                widget.CPU(**powerline),
+                widget.Clock(background="222222")
             ],
-            24,
+            21,
             # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
             # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
         ),
@@ -152,6 +155,11 @@ floating_layout = layout.Floating(
         Match(wm_class="confirmreset"),  # gitk
         Match(wm_class="makebranch"),  # gitk
         Match(wm_class="maketag"),  # gitk
+        Match(wm_class="lxappearance"), 
+        Match(wm_class="thunar"), 
+        Match(wm_class="pavucontrol"), 
+        Match(wm_class="galculator"), 
+        Match(wm_class="timeshift"), 
         Match(wm_class="ssh-askpass"),  # ssh-askpass
         Match(title="branchdialog"),  # gitk
         Match(title="pinentry"),  # GPG key password entry
